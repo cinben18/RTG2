@@ -1,0 +1,97 @@
+import tkinter as tk#this module has tools for making a GUI
+from tkinter import ttk
+
+
+#RTG stands for RunTrackerGUI
+LARGE_FRONT = ("Veranda", 20)
+class RTG(tk.Tk):
+    
+    def __init__(self, *args,**kwargs): #kw stands for key word(dictionaries)
+        """Initialize the frame"""
+        
+        self.create_widgets(*args)
+
+    def create_widgets(self,  *args, **kwargs):
+        """create button, text, and entry widgets"""
+
+        tk.Tk.__init__(self, *args, **kwargs)
+
+        container = tk.Frame()
+        #Fill will the entire space and expand will continue to do so if you expand
+        container.pack(side = "top", fill = "both", expand ='True')
+
+        #the first param is the setting of minimum size
+        #Weigth sets priority
+        container.grid_rowconfigure(0, weight = 1)
+        container.grid_columnconfigure(0, weight = 1)
+        
+        self.frames = {}
+
+        for F in (StartPage, PageOne):
+            #This will add our classes as a tuple to our frames dictionary
+            frame = F(container,self)
+            self.frames[F] = frame
+
+            frame.grid(row = 0, column = 0, stick ='nsew')
+
+
+        self.show_frame(StartPage)
+            
+    
+    def show_frame(self,cont):    
+        frame = self.frames[cont]
+        #brings frame param to the front
+        frame.tkraise()
+        
+
+    
+        
+
+class StartPage(tk.Frame):
+    
+    def __init__(self,parent, controller):
+        tk.Frame.__init__(self,parent)
+        
+        self.run_tracker_greet = tk.Label(self,  text = "Welcome to Run Tracker", font = LARGE_FRONT)
+        self.run_tracker_greet.config()
+        
+        self.run_tracker_greet.pack(pady = 10, padx = 10)
+
+        self.button1 = ttk.Button(self, text = "Enter a run!", 
+                                 command = lambda: controller.show_frame(PageOne))
+        self.button1.pack()
+
+        quitButton = ttk.Button(self, text = "Quit", command = self.client_exit)
+       
+        quitButton.pack()
+
+    def client_exit(self):
+        """Quits the Program"""
+        quit()
+
+class PageOne(tk.Frame):
+    #
+    def __init__(self,parent,controller):
+        tk.Frame.__init__(self,parent)
+        self.run_tracker_enter_run = tk.Label(self,  text = "Enter a run!", font = LARGE_FRONT)
+        self.run_tracker_enter_run.config()
+        
+        self.run_tracker_enter_run.pack(pady = 10, padx = 10)
+
+        self.run_tracker_e = ttk.Entry()
+        self.run_tracker_e.pack()
+        self.button1 = ttk.Button(self, text = "Return", 
+                                 command = lambda: controller.show_frame(StartPage))
+        s = self.run_tracker_e.get() 
+        self.button1.pack()
+        print(s)
+    
+app = RTG()
+app.mainloop()
+
+        
+
+
+    
+
+    
