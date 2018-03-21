@@ -1,20 +1,29 @@
+import matplotlib 
+matplotlib.use("TkAgg") #Backend of matplotlib
+
+from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg, NavigationToolbar2TkAgg
+from matplotlib.figure import Figure 
+
 import tkinter as tk#this module has tools for making a GUI
 from tkinter import ttk
 
 
 #RTG stands for RunTrackerGUI
 LARGE_FRONT = ("Veranda", 20)
+
 class RTG(tk.Tk):
     
     def __init__(self, *args,**kwargs): #kw stands for key word(dictionaries)
         """Initialize the frame"""
         
-        self.create_widgets(*args)
+        self.create_widgets()
 
     def create_widgets(self,  *args, **kwargs):
         """create button, text, and entry widgets"""
 
         tk.Tk.__init__(self, *args, **kwargs)
+        tk.Tk.iconbitmap(self, default="") #You can use this to change the icon in the top left corner
+        tk.Tk.wm_title(self, "Run Tracker")
 
         container = tk.Frame()
         #Fill will the entire space and expand will continue to do so if you expand
@@ -27,7 +36,7 @@ class RTG(tk.Tk):
         
         self.frames = {}
 
-        for F in (StartPage, PageOne):
+        for F in (StartPage, DatePage, DistancePage, GraphPage):
             #This will add our classes as a tuple to our frames dictionary
             frame = F(container,self)
             self.frames[F] = frame
@@ -57,9 +66,13 @@ class StartPage(tk.Frame):
         
         self.run_tracker_greet.pack(pady = 10, padx = 10)
 
-        self.button1 = ttk.Button(self, text = "Enter a run!", 
-                                 command = lambda: controller.show_frame(PageOne))
-        self.button1.pack()
+        self.enter_a_run = ttk.Button(self, text = "Enter a run!", 
+                                 command = lambda: controller.show_frame(DatePage))
+        self.enter_a_run.pack()
+
+        graph_button = ttk.Button(self, text = "Graph Page", 
+                  command = lambda: controller.show_frame(GraphPage))
+        graph_button.pack()
 
         quitButton = ttk.Button(self, text = "Quit", command = self.client_exit)
        
@@ -69,25 +82,79 @@ class StartPage(tk.Frame):
         """Quits the Program"""
         quit()
 
-class PageOne(tk.Frame):
-    #
+class DatePage(tk.Frame):
+    #This page will be to get the date of the run
     def __init__(self,parent,controller):
         tk.Frame.__init__(self,parent)
-        self.run_tracker_enter_run = tk.Label(self,  text = "Enter a run!", font = LARGE_FRONT)
-        self.run_tracker_enter_run.config()
+        self.date_label = tk.Label(self,  text = "Enter the date of the run", font = LARGE_FRONT)
+        self.date_label.config()
         
-        self.run_tracker_enter_run.pack(pady = 10, padx = 10)
+        self.date_label.pack(pady = 10, padx = 10)
 
-        self.run_tracker_e = ttk.Entry()
-        self.run_tracker_e.pack()
+        self.entry_date = ttk.Entry()
+        self.entry_date.pack()
+        
+        #This button will call the get() for the entry
+        self.enter_button = ttk.Button(self, text = "Enter", command = lambda: self.enter_run())
+        self.enter_button.pack()
+        
+        #This button will go to the next page to enter the distance
+        self.next_page_button = ttk.Button(self, text = "Next", command = lambda: controller.show_frame(DistancePage))
+        self.next_page_button.pack()
+
         self.button1 = ttk.Button(self, text = "Return", 
                                  command = lambda: controller.show_frame(StartPage))
-        s = self.run_tracker_e.get() 
         self.button1.pack()
-        print(s)
-    
+
+    def enter_run(self):
+        """Take the text in the entry to a variable"""
+        temp = self.entry_date.get()
+        return temp
+
+class DistancePage(tk.Frame):
+
+    def __init__(self,parent,controller):
+        tk.Frame.__init__(self, parent)
+        
+        self.return_button = ttk.Button(self, text = "Return", 
+                                  command = lambda: controller.show_frame(StartPage))
+        self.return_button.pack()
+        
+class GraphPage(tk.Frame):
+   
+    def __init__(self, parent, controller):
+        tk.Frame.__init__(self, parent)
+
+        self.return_button = ttk.Button(self, text = "Return", 
+                                  command = lambda: controller.show_frame(StartPage))
+        self.return_button.pack()
+
+        f = Figure(figsize = (5,5), dpi = 100)
+        a = f.add_subplot(111)
+        a.plot([1,2,3,4,5,6,7,8], [5,6,1,3,8,9,3,5]) #These the x and y coordinates
+
+        canvas = FigureCanvasTkAgg(f, self)
+        canvas.draw()
+        canvas.get_tk_widget().pack(side = tk.TOP, fill = tk.BOTH,
+                                    expand = True)
+
+        toolbar = NavigationToolbar2TkAgg(canvas, self)
+        toolbar.update()
+        canvas._tkcanvas.pack(side = tk.TOP, fill = tk.BOTH,
+                                    expand = True)
+
+
 app = RTG()
+app.geometry("500x400")
 app.mainloop()
+
+        
+
+
+    
+
+    
+
 
         
 
